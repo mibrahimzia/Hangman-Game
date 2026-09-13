@@ -28,9 +28,9 @@ The SQLite database self-initialises on first run from `schema.sql` +
 
 ```bash
 .venv/bin/pip install pytest ruff bandit pip-audit
-SECRET_KEY=test .venv/bin/python -m pytest -v        # 76 tests
-.venv/bin/python -m ruff check app src scripts tests run.py
-.venv/bin/bandit -r app src
+SECRET_KEY=test .venv/bin/python -m pytest -v        # 81 tests
+.venv/bin/python -m ruff check .
+.venv/bin/bandit -r src -x '*/python_modules/*'      # first-party code only
 .venv/bin/pip-audit -r docs/requirements-pinned.txt
 ```
 
@@ -72,20 +72,19 @@ score, check `/leaderboard`. Then record the URL at the top of this file.
 
 ### Option B - Cloudflare dashboard (connected repo / Workers Builds)
 
-If the repo is connected directly to Cloudflare, use these build settings
-(Worker → Settings → Build). Plain `npx wrangler deploy` alone fails for
-Python Workers because dependencies must be vendored first with
-`pywrangler sync`.
+Third-party dependencies are vendored into the repo as pure-Python source
+under `src/python_modules/` (regenerate with
+`python3 scripts/vendor_python_modules.py` after changing pins), so the
+default build settings work with no extra steps - build command
+`pip install .`, deploy command `npx wrangler versions upload`.
+`pywrangler sync` is NOT required for deploys (it remains useful for local
+`wrangler dev` iterations).
 
-- Production branch: `main` (merge the feature PR first so `main` contains
-  `wrangler.jsonc`, `src/worker.py`, and `pyproject.toml` - building a branch
-  without them fails with "Could not detect a directory containing static
-  files").
-- Build command:
-  `python3 -m pip install workers-py uv && export PATH="$HOME/.local/bin:$PATH" && python3 -m pywrangler sync`
-- Deploy command: `python3 -m pywrangler deploy`
-  (re-runs sync if needed, then deploys through `wrangler`; auth is automatic
-  on connected repos).
+- Production branch: the connected branch must contain `wrangler.jsonc`,
+  `src/worker.py`, and `pyproject.toml` - building a branch without them
+  fails with "Could not detect a directory containing static files".
+  (`main` only has these after the PR is merged; building the feature
+  branch directly also works.)
 - Before the first deploy, apply the schema + seed to D1 from any machine
   with `wrangler` logged in:
   `wrangler d1 execute hangman-db --file=./schema.sql`

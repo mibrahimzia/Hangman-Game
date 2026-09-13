@@ -39,7 +39,7 @@ vulnerabilities.
 An agentic AI coding assistant (Arena.ai Agent Mode) generated the initial
 code, tests, and documentation drafts from the EF101-P01 specification in this
 repository's session. All output was executed, reviewed, and verified by the
-group: 76/76 tests pass, `ruff`/`bandit`/`pip-audit` are clean, and the live
+group: 81/81 tests pass, `ruff`/`bandit`/`pip-audit` are clean, and the live
 server flow was verified with `curl`. The group takes full ownership of every
 line and can explain the complete system in the viva (see `docs/VIVA.md`).
 

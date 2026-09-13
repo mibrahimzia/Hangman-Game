@@ -161,7 +161,10 @@ def test_models_use_bound_parameters_not_interpolation():
 
 
 def test_no_emoji_in_source():
-    for dirpath, _dirnames, filenames in os.walk(os.path.join(ROOT, "src")):
+    for dirpath, dirnames, filenames in os.walk(os.path.join(ROOT, "src")):
+        # Vendored third-party code is byte-identical to PyPI releases; only
+        # first-party sources are held to the glyph policy.
+        dirnames[:] = [d for d in dirnames if d != "python_modules"]
         for filename in filenames:
             if not filename.endswith((".py", ".html", ".js", ".css")):
                 continue

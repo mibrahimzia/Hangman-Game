@@ -44,13 +44,12 @@ app = ["templates/**/*", "static/**/*"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# Vendored third-party code is byte-identical to the pinned PyPI releases
+# (see scripts/vendor_python_modules.py); never lint or reformat it.
+exclude = ["src/python_modules"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "W"]
-
-[tool.bandit]
-exclude_dirs = ["tests", ".venv"]
-skips = []
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

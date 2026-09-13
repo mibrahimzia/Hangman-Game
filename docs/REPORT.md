@@ -86,7 +86,7 @@ owner.
 | Rate limiting | Flask-Limiter (in-memory) | Login/score-submit abuse prevention; pure-Python |
 | Secrets | Environment / Wrangler secrets | Missing `SECRET_KEY` refuses to start |
 | Deploy tool | `pywrangler` + `wrangler` | Official Python Workers toolchain |
-| Testing | pytest + Flask test client | Real assertions (76 tests), not screenshots |
+| Testing | pytest + Flask test client | Real assertions (81 tests), not screenshots |
 | Lint/scan | ruff + bandit + pip-audit | Style, security scan, dependency audit |
 
 Why not JavaScript on the Worker? Cloudflare Workers support Python WSGI apps
@@ -184,7 +184,7 @@ src/app/static/             CSS, JS, vendored Lucide icons + ISC license
 src/worker.py               Cloudflare Workers entrypoint (WSGI adapter)
 python_modules/             (git-ignored build output) Pyodide deps via pywrangler sync
 scripts/                    seed_words.py, seed_demo.py, build_inline_templates.py
-tests/                      76 pytest tests (engine, routes, security, templates)
+tests/                      81 pytest tests (engine, routes, security, templates, bundle)
 docs/                       REPORT, ARCHITECTURE, SECURITY, VIVA, AI_DISCLOSURE, CONTRIBUTIONS
 schema.sql                  D1/SQLite table definitions
 db_init.sql                 generated seed data (7,105 words + demo scores)
@@ -204,7 +204,7 @@ ship embedded in `templates_inline.py` and are wired through a
 
 ## 7. Testing
 
-76 automated tests, all passing. Run with `SECRET_KEY=test python -m pytest -v`.
+81 automated tests, all passing. Run with `SECRET_KEY=test python -m pytest -v`.
 
 Mapping to the required cases (section 3.3 of the build spec):
 
@@ -230,99 +230,107 @@ use bound `?` parameters, and a no-emoji source scan. Live server verification
 with `curl` confirmed HTTP 200 on `/` and `/leaderboard`, correct `Set-Cookie`
 flags, all security headers, and a full play-through against the real database.
 
-### 7.1 Full `pytest -v` output (76 passed)
+### 7.1 Full `pytest -v` output (81 passed)
 
 ```
+============================= test session starts ==============================
 platform linux -- Python 3.11.2, pytest-9.1.1, pluggy-1.6.0 -- /home/user/Hangman-Game/.venv/bin/python
 cachedir: .pytest_cache
 rootdir: /home/user/Hangman-Game
 configfile: pyproject.toml
 testpaths: tests
-collecting ... collected 76 items
+collecting ... collected 81 items
 
 tests/test_game_engine.py::test_correct_single_letter PASSED             [  1%]
 tests/test_game_engine.py::test_repeated_letter_reveals_both PASSED      [  2%]
 tests/test_game_engine.py::test_wrong_letter_decrements_attempts PASSED  [  3%]
-tests/test_game_engine.py::test_duplicate_guess_does_not_decrement PASSED [  5%]
+tests/test_game_engine.py::test_duplicate_guess_does_not_decrement PASSED [  4%]
 tests/test_game_engine.py::test_invalid_guesses_do_not_change_state PASSED [  6%]
 tests/test_game_engine.py::test_complete_win PASSED                      [  7%]
-tests/test_game_engine.py::test_complete_loss PASSED                     [  9%]
-tests/test_game_engine.py::test_difficulties_set_attempts[Easy-8] PASSED [ 10%]
+tests/test_game_engine.py::test_complete_loss PASSED                     [  8%]
+tests/test_game_engine.py::test_difficulties_set_attempts[Easy-8] PASSED [  9%]
 tests/test_game_engine.py::test_difficulties_set_attempts[Medium-6] PASSED [ 11%]
-tests/test_game_engine.py::test_difficulties_set_attempts[Hard-5] PASSED [ 13%]
-tests/test_game_engine.py::test_guess_after_finish_is_stable PASSED      [ 14%]
-tests/test_game_engine.py::test_hint_reveals_letter_without_costing_attempt PASSED [ 15%]
-tests/test_game_engine.py::test_forfeit_marks_lost PASSED                [ 17%]
-tests/test_game_engine.py::test_row_roundtrip PASSED                     [ 18%]
-tests/test_game_engine.py::test_score_easy_example PASSED                [ 19%]
-tests/test_game_engine.py::test_score_medium_example PASSED              [ 21%]
-tests/test_game_engine.py::test_score_hard_with_hint PASSED              [ 22%]
-tests/test_game_engine.py::test_score_loss_is_zero PASSED                [ 23%]
-tests/test_game_engine.py::test_score_never_negative PASSED              [ 25%]
-tests/test_game_engine.py::test_final_score_uses_engine_state PASSED     [ 26%]
-tests/test_game_engine.py::test_difficulty_rule[cat-Easy] PASSED         [ 27%]
-tests/test_game_engine.py::test_difficulty_rule[dog-Easy] PASSED         [ 28%]
-tests/test_game_engine.py::test_difficulty_rule[planet-Medium] PASSED    [ 30%]
-tests/test_game_engine.py::test_difficulty_rule[tennis-Medium] PASSED    [ 31%]
-tests/test_game_engine.py::test_difficulty_rule[jazz-Hard] PASSED        [ 32%]
-tests/test_game_engine.py::test_difficulty_rule[quiz-Hard] PASSED        [ 34%]
-tests/test_game_engine.py::test_difficulty_rule[mountain-Medium] PASSED  [ 35%]
-tests/test_game_engine.py::test_difficulty_rule[flywheel-Hard] PASSED    [ 36%]
-tests/test_game_engine.py::test_difficulty_rule[hippopotamus-Hard] PASSED [ 38%]
-tests/test_game_engine.py::test_valid_player_names[Ayesha] PASSED        [ 39%]
-tests/test_game_engine.py::test_valid_player_names[Bilal_99] PASSED      [ 40%]
-tests/test_game_engine.py::test_valid_player_names[Zoe-1] PASSED         [ 42%]
-tests/test_game_engine.py::test_valid_player_names[a b] PASSED           [ 43%]
-tests/test_game_engine.py::test_valid_player_names[XXXXXXXXXXXXXXXXXXXX] PASSED [ 44%]
-tests/test_game_engine.py::test_invalid_player_names_rejected[] PASSED   [ 46%]
-tests/test_game_engine.py::test_invalid_player_names_rejected[   ] PASSED [ 47%]
-tests/test_game_engine.py::test_invalid_player_names_rejected[\t] PASSED [ 48%]
-tests/test_game_engine.py::test_invalid_player_names_rejected[None] PASSED [ 50%]
-tests/test_game_engine.py::test_invalid_player_names_rejected[XXXXXXXXXXXXXXXXXXXXX] PASSED [ 51%]
-tests/test_game_engine.py::test_invalid_player_names_rejected[<script>] PASSED [ 52%]
-tests/test_game_engine.py::test_invalid_player_names_rejected[O'Brien] PASSED [ 53%]
-tests/test_game_engine.py::test_invalid_player_names_rejected[a/b] PASSED [ 55%]
-tests/test_game_engine.py::test_invalid_player_names_rejected[semi;colon] PASSED [ 56%]
-tests/test_routes.py::test_index_without_game_shows_new_game_form PASSED [ 57%]
-tests/test_routes.py::test_new_game_hides_answer PASSED                  [ 59%]
-tests/test_routes.py::test_guess_correct_incorrect_duplicate PASSED      [ 60%]
-tests/test_routes.py::test_win_flow_and_submit_score PASSED              [ 61%]
-tests/test_routes.py::test_loss_flow_reveals_answer PASSED               [ 63%]
-tests/test_routes.py::test_category_choice_is_respected PASSED           [ 64%]
-tests/test_routes.py::test_daily_challenge_is_deterministic PASSED       [ 65%]
-tests/test_routes.py::test_hint_costs_score_not_attempts PASSED          [ 67%]
-tests/test_routes.py::test_give_up_marks_lost_and_reveals PASSED         [ 68%]
-tests/test_routes.py::test_json_api_hides_answer_until_finished PASSED   [ 69%]
-tests/test_routes.py::test_submit_score_requires_finished_game PASSED    [ 71%]
-tests/test_routes.py::test_leaderboard_orders_score_then_earliest PASSED [ 72%]
-tests/test_routes.py::test_leaderboard_difficulty_filter PASSED          [ 73%]
-tests/test_routes.py::test_top_three_have_badges_and_big_names PASSED    [ 75%]
-tests/test_routes.py::test_invalid_difficulty_defaults_safely PASSED     [ 76%]
-tests/test_routes.py::test_guess_requires_post PASSED                    [ 77%]
-tests/test_routes.py::test_404_page PASSED                               [ 78%]
-tests/test_security.py::test_security_headers_present PASSED             [ 80%]
-tests/test_security.py::test_game_cookie_is_locked_down PASSED           [ 81%]
-tests/test_security.py::test_session_cookie_is_locked_down PASSED        [ 82%]
-tests/test_security.py::test_csrf_blocks_forms_without_token PASSED      [ 84%]
-tests/test_security.py::test_forms_carry_csrf_tokens PASSED              [ 85%]
-tests/test_security.py::test_leaderboard_escapes_player_names PASSED     [ 86%]
-tests/test_security.py::test_submit_score_rejects_html_names PASSED      [ 88%]
-tests/test_security.py::test_admin_routes_require_admin PASSED           [ 89%]
-tests/test_security.py::test_admin_can_delete_score_and_add_word PASSED  [ 90%]
-tests/test_security.py::test_passwords_hashed_with_pbkdf2 PASSED         [ 92%]
-tests/test_security.py::test_login_is_rate_limited PASSED                [ 93%]
-tests/test_security.py::test_login_next_param_blocks_open_redirects PASSED [ 94%]
-tests/test_security.py::test_models_use_bound_parameters_not_interpolation PASSED [ 96%]
-tests/test_security.py::test_no_emoji_in_source PASSED                   [ 97%]
-tests/test_templates_inline.py::test_inline_templates_match_disk PASSED  [ 98%]
-tests/test_templates_inline.py::test_inline_templates_render_without_filesystem PASSED [100%]
+tests/test_game_engine.py::test_difficulties_set_attempts[Hard-5] PASSED [ 12%]
+tests/test_game_engine.py::test_guess_after_finish_is_stable PASSED      [ 13%]
+tests/test_game_engine.py::test_hint_reveals_letter_without_costing_attempt PASSED [ 14%]
+tests/test_game_engine.py::test_forfeit_marks_lost PASSED                [ 16%]
+tests/test_game_engine.py::test_row_roundtrip PASSED                     [ 17%]
+tests/test_game_engine.py::test_score_easy_example PASSED                [ 18%]
+tests/test_game_engine.py::test_score_medium_example PASSED              [ 19%]
+tests/test_game_engine.py::test_score_hard_with_hint PASSED              [ 20%]
+tests/test_game_engine.py::test_score_loss_is_zero PASSED                [ 22%]
+tests/test_game_engine.py::test_score_never_negative PASSED              [ 23%]
+tests/test_game_engine.py::test_final_score_uses_engine_state PASSED     [ 24%]
+tests/test_game_engine.py::test_difficulty_rule[cat-Easy] PASSED         [ 25%]
+tests/test_game_engine.py::test_difficulty_rule[dog-Easy] PASSED         [ 27%]
+tests/test_game_engine.py::test_difficulty_rule[planet-Medium] PASSED    [ 28%]
+tests/test_game_engine.py::test_difficulty_rule[tennis-Medium] PASSED    [ 29%]
+tests/test_game_engine.py::test_difficulty_rule[jazz-Hard] PASSED        [ 30%]
+tests/test_game_engine.py::test_difficulty_rule[quiz-Hard] PASSED        [ 32%]
+tests/test_game_engine.py::test_difficulty_rule[mountain-Medium] PASSED  [ 33%]
+tests/test_game_engine.py::test_difficulty_rule[flywheel-Hard] PASSED    [ 34%]
+tests/test_game_engine.py::test_difficulty_rule[hippopotamus-Hard] PASSED [ 35%]
+tests/test_game_engine.py::test_valid_player_names[Ayesha] PASSED        [ 37%]
+tests/test_game_engine.py::test_valid_player_names[Bilal_99] PASSED      [ 38%]
+tests/test_game_engine.py::test_valid_player_names[Zoe-1] PASSED         [ 39%]
+tests/test_game_engine.py::test_valid_player_names[a b] PASSED           [ 40%]
+tests/test_game_engine.py::test_valid_player_names[XXXXXXXXXXXXXXXXXXXX] PASSED [ 41%]
+tests/test_game_engine.py::test_invalid_player_names_rejected[] PASSED   [ 43%]
+tests/test_game_engine.py::test_invalid_player_names_rejected[   ] PASSED [ 44%]
+tests/test_game_engine.py::test_invalid_player_names_rejected[\t] PASSED [ 45%]
+tests/test_game_engine.py::test_invalid_player_names_rejected[None] PASSED [ 46%]
+tests/test_game_engine.py::test_invalid_player_names_rejected[XXXXXXXXXXXXXXXXXXXXX] PASSED [ 48%]
+tests/test_game_engine.py::test_invalid_player_names_rejected[<script>] PASSED [ 49%]
+tests/test_game_engine.py::test_invalid_player_names_rejected[O'Brien] PASSED [ 50%]
+tests/test_game_engine.py::test_invalid_player_names_rejected[a/b] PASSED [ 51%]
+tests/test_game_engine.py::test_invalid_player_names_rejected[semi;colon] PASSED [ 53%]
+tests/test_routes.py::test_index_without_game_shows_new_game_form PASSED [ 54%]
+tests/test_routes.py::test_new_game_hides_answer PASSED                  [ 55%]
+tests/test_routes.py::test_guess_correct_incorrect_duplicate PASSED      [ 56%]
+tests/test_routes.py::test_win_flow_and_submit_score PASSED              [ 58%]
+tests/test_routes.py::test_loss_flow_reveals_answer PASSED               [ 59%]
+tests/test_routes.py::test_category_choice_is_respected PASSED           [ 60%]
+tests/test_routes.py::test_daily_challenge_is_deterministic PASSED       [ 61%]
+tests/test_routes.py::test_hint_costs_score_not_attempts PASSED          [ 62%]
+tests/test_routes.py::test_give_up_marks_lost_and_reveals PASSED         [ 64%]
+tests/test_routes.py::test_json_api_hides_answer_until_finished PASSED   [ 65%]
+tests/test_routes.py::test_submit_score_requires_finished_game PASSED    [ 66%]
+tests/test_routes.py::test_leaderboard_orders_score_then_earliest PASSED [ 67%]
+tests/test_routes.py::test_leaderboard_difficulty_filter PASSED          [ 69%]
+tests/test_routes.py::test_top_three_have_badges_and_big_names PASSED    [ 70%]
+tests/test_routes.py::test_invalid_difficulty_defaults_safely PASSED     [ 71%]
+tests/test_routes.py::test_guess_requires_post PASSED                    [ 72%]
+tests/test_routes.py::test_404_page PASSED                               [ 74%]
+tests/test_security.py::test_security_headers_present PASSED             [ 75%]
+tests/test_security.py::test_game_cookie_is_locked_down PASSED           [ 76%]
+tests/test_security.py::test_session_cookie_is_locked_down PASSED        [ 77%]
+tests/test_security.py::test_csrf_blocks_forms_without_token PASSED      [ 79%]
+tests/test_security.py::test_forms_carry_csrf_tokens PASSED              [ 80%]
+tests/test_security.py::test_leaderboard_escapes_player_names PASSED     [ 81%]
+tests/test_security.py::test_submit_score_rejects_html_names PASSED      [ 82%]
+tests/test_security.py::test_admin_routes_require_admin PASSED           [ 83%]
+tests/test_security.py::test_admin_can_delete_score_and_add_word PASSED  [ 85%]
+tests/test_security.py::test_passwords_hashed_with_pbkdf2 PASSED         [ 86%]
+tests/test_security.py::test_login_is_rate_limited PASSED                [ 87%]
+tests/test_security.py::test_login_next_param_blocks_open_redirects PASSED [ 88%]
+tests/test_security.py::test_models_use_bound_parameters_not_interpolation PASSED [ 90%]
+tests/test_security.py::test_no_emoji_in_source PASSED                   [ 91%]
+tests/test_templates_inline.py::test_inline_templates_match_disk PASSED  [ 92%]
+tests/test_templates_inline.py::test_inline_templates_render_without_filesystem PASSED [ 93%]
+tests/test_worker_bundle.py::test_vendored_top_level_complete PASSED     [ 95%]
+tests/test_worker_bundle.py::test_vendored_workers_adapter_present PASSED [ 96%]
+tests/test_worker_bundle.py::test_vendored_tree_is_pure_python PASSED    [ 97%]
+tests/test_worker_bundle.py::test_vendored_dist_info_is_metadata_only PASSED [ 98%]
+tests/test_worker_bundle.py::test_vendored_manifest_matches_pins PASSED  [100%]
 
-============================== 76 passed in 3.43s ==============================
+============================== 81 passed in 3.62s ==============================
 ```
 
-Static analysis: `ruff check` and `ruff format --check` pass on all 21 Python
-files; `bandit -r app src` reports 0 issues; `pip-audit` on the pinned
-requirements reports no known vulnerabilities.
+Static analysis: `ruff check` and `ruff format --check` pass on all 33
+first-party Python files (vendored third-party code under
+`src/python_modules/` is excluded in `pyproject.toml`);
+`bandit -r src -x '*/python_modules/*'` reports 0 issues; `pip-audit` on the
+pinned requirements reports no known vulnerabilities.
 
 ### 7.2 Cases that failed during development
 
@@ -364,6 +372,17 @@ unless the project bundles its own copy. The fix, mirroring the official
 (it owns the `workers/` package incl. `wsgi.py`, `asgi.py`, and the
 `WorkerEntrypoint` base) and to export the entrypoint canonically as
 `Default = wsgi.entrypoint(app)` in `src/worker.py`.
+
+Stronger fix (same day): Workers Builds runs `pip install .` + `wrangler
+versions upload`, which never executes `pywrangler sync`, so nothing the
+bundler is *expected* to do with `pyproject.toml` dependencies can be relied
+on. The repo therefore vendors the entire pinned closure as pure-Python
+source under `src/python_modules/` (301 files, 0.84 MB gzipped; regenerate
+with `scripts/vendor_python_modules.py`), which wrangler uploads as part of
+its `src/` walk, and `src/worker.py` puts it on `sys.path` ahead of
+everything else. The bundle is fully self-contained: no build step beyond the
+defaults is required, and the entrypoint stays the canonical
+`Default = wsgi.entrypoint(app)`.
 
 Release steps (run once, from the repo root, logged in via `wrangler login`):
 
