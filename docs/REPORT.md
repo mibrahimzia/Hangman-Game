@@ -356,7 +356,9 @@ pywrangler deploy                        # prints https://hangman.<sub>.workers.
 
 Then verify from a second device (phone on mobile data): open the URL, play a
 game, submit a score, and confirm it on `/leaderboard`. Record the URL in
-`README.md` and paste the screenshot into this section.
+`README.md` and paste the screenshot into this section. For repos connected
+directly to Cloudflare (Workers Builds), use the dashboard build settings in
+`README.md` (Option B) instead of the CLI sequence above.
 
 No fallback platform was needed: the primary target builds cleanly, and the
 only remaining step is authentication-bound.

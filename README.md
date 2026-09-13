@@ -70,6 +70,32 @@ pywrangler deploy                   # prints the public workers.dev URL
 Verify from a second device (phone on mobile data): play a game, submit a
 score, check `/leaderboard`. Then record the URL at the top of this file.
 
+### Option B - Cloudflare dashboard (connected repo / Workers Builds)
+
+If the repo is connected directly to Cloudflare, use these build settings
+(Worker → Settings → Build). Plain `npx wrangler deploy` alone fails for
+Python Workers because dependencies must be vendored first with
+`pywrangler sync`.
+
+- Production branch: `main` (merge the feature PR first so `main` contains
+  `wrangler.jsonc`, `src/worker.py`, and `pyproject.toml` - building a branch
+  without them fails with "Could not detect a directory containing static
+  files").
+- Build command:
+  `python3 -m pip install workers-py uv && export PATH="$HOME/.local/bin:$PATH" && python3 -m pywrangler sync`
+- Deploy command: `python3 -m pywrangler deploy`
+  (re-runs sync if needed, then deploys through `wrangler`; auth is automatic
+  on connected repos).
+- Before the first deploy, apply the schema + seed to D1 from any machine
+  with `wrangler` logged in:
+  `wrangler d1 execute hangman-db --file=./schema.sql`
+  `wrangler d1 execute hangman-db --file=./db_init.sql`
+  (If your D1 database has a different name than `hangman-db`, update
+  `database_name` in `wrangler.jsonc` to match.)
+- Set the secret: Worker → Settings → Variables and Secrets → add a
+  **Secret** named `SECRET_KEY` with a long random value
+  (or `wrangler secret put SECRET_KEY` from the CLI).
+
 Backup demo plan (offline evaluation): run locally as in Quick start and show
 the `pytest -v` output in `docs/REPORT.md` section 7.
 

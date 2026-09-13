@@ -8,8 +8,7 @@
     {
       "binding": "DB",
       "database_name": "hangman-db",
-      // Set with: wrangler d1 create hangman-db  (then paste the id here)
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID"
+      "database_id": "130f2c0f-a9b1-46b0-8a0e-922a93e91910"
     }
   ],
   "assets": {
