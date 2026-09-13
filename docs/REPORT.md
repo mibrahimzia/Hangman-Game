@@ -355,6 +355,16 @@ Validated in this environment: `workers-py 1.17.2` API surface
 `pywrangler sync` sandbox run could not download its Python 3.12 toolchain
 (sandbox TLS restriction); it will run normally on a developer machine.
 
+Deployment gotcha (found during Workers Builds validation, Sep 2026): the
+deployed runtime image ships an older top-level `workers` package that has NO
+`wsgi` submodule, so `from workers import wsgi` fails at upload validation
+unless the project bundles its own copy. The fix, mirroring the official
+`flask-todo` example (cloudflare/python-workers-examples), is to keep
+`workers-runtime-sdk==1.8.4` as a *runtime* dependency in `pyproject.toml`
+(it owns the `workers/` package incl. `wsgi.py`, `asgi.py`, and the
+`WorkerEntrypoint` base) and to export the entrypoint canonically as
+`Default = wsgi.entrypoint(app)` in `src/worker.py`.
+
 Release steps (run once, from the repo root, logged in via `wrangler login`):
 
 ```

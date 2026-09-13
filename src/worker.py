@@ -1,11 +1,17 @@
 """Cloudflare Workers entrypoint (Python runtime only).
 
-Serves the Flask app through the official WSGI adapter. The D1 binding is
-exposed to Flask routes as ``request.environ["workers.env"].DB`` and is
-consumed in src/app/db.py.
+Serves the Flask app through the official WSGI adapter from
+``workers-runtime-sdk`` (a runtime dependency in pyproject.toml, mirroring the
+official flask-todo example at
+https://github.com/cloudflare/python-workers-examples)::
+
+    Default = wsgi.entrypoint(app)
+
+The D1 binding is exposed to Flask routes as
+``request.environ["workers.env"].DB`` and is consumed in src/app/db.py.
 
 Deploy (Workers Builds / connected repo):
-    build:  python3 -m pip install workers-py uv && \\
+    build:  python3 -m pip install workers-py uv && \\\\
             export PATH="$HOME/.local/bin:$PATH" && python3 -m pywrangler sync
     deploy: python3 -m pywrangler deploy
 
@@ -24,12 +30,8 @@ import sys
 # wrangler uploads every *.py under this file's directory (src/).
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from workers import wsgi  # noqa: E402  (provided by the Workers Python runtime)
+from workers import wsgi  # noqa: E402  (bundled via the workers-runtime-sdk dep)
 
 from app import create_app  # noqa: E402
 
-app = create_app()
-
-
-async def on_fetch(request, env):
-    return await wsgi.fetch(app, request, env)
+Default = wsgi.entrypoint(create_app())

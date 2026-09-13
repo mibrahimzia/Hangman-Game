@@ -4,7 +4,7 @@ One row per hardening item (§3.5 of the build spec), each with evidence.
 
 | # | Control | Evidence |
 |---|---|---|
-| 1 | Unused packages removed | Runtime closure is exactly Flask + Flask-Login + Flask-WTF + Flask-Limiter and their hard requirements (17 pins in `docs/requirements-pinned.txt`, generated from a clean venv). Dev-only tools (`pytest`, `ruff`, `bandit`, `wordfreq`) live under `[project.optional-dependencies] dev` and are never deployed. |
+| 1 | Unused packages removed | Runtime closure is exactly Flask + Flask-Login + Flask-WTF + Flask-Limiter + workers-runtime-sdk (the Workers Python adapter, which provides the `workers` module) and their hard requirements (18 pins in `docs/requirements-pinned.txt`, generated from a clean venv). Dev-only tools (`pytest`, `ruff`, `bandit`, `wordfreq`) live under `[project.optional-dependencies] dev` and are never deployed. |
 | 2 | No debug mode | `run.py` uses `debug=False`; no `app.run(debug=True)` anywhere (`grep -rn "debug=True" app src run.py` is empty); `FLASK_ENV=production` in `wrangler.jsonc`. |
 | 3 | Git history scanned for secrets | `git log` reviewed; `grep -rniE "password\s*=|secret_key\s*=\s*['\"][^'\"]|api[_-]?key|token\s*=" --include="*.py" app src scripts` finds only config plumbing and the documented `test-secret-key` dummy (excluded from scans via justified `nosec`). No `.env`, tokens, or hashes of real passwords are committed. |
 | 4 | Rate limiting on `/login`, `/submit-score`, `/new` | Flask-Limiter: login/register 5/min, submit-score 10/min, new 30/min, guess 60/min, hint 30/min (`src/app/routes/*.py`). Test `test_login_is_rate_limited` asserts the 6th rapid login returns 429. |
