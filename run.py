@@ -1,6 +1,9 @@
 """Local development entrypoint. Cloudflare Workers uses src/worker.py instead."""
 
 import os
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
 
 from app import create_app
 

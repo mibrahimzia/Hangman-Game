@@ -10,18 +10,18 @@
 |   word, drawing,  |  forms /  |    on_fetch -> workers.wsgi.fetch        |
 |   score, board    |  JSON     |       |                                  |
 | - holds ONE       |           |       v                                  |
-|   opaque cookie:  |           |  Flask routes (app/routes/)              |
+|   opaque cookie:  |           |  Flask routes (src/app/routes/)              |
 |   hangman_game    |           |    game.py  leaderboard.py               |
 |   = random token  |           |    auth.py  admin.py                     |
 |   (no answer!)    |           |       |                                  |
 |                   |           |       v                                  |
-| Vanilla JS only   |           |  Services (app/services/)  Models       |
-| enhances forms;   |           |   game_engine.py  <-+  (app/models.py)  |
+| Vanilla JS only   |           |  Services (src/app/services/)  Models       |
+| enhances forms;   |           |   game_engine.py  <-+  (src/app/models.py)  |
 | page works with   |           |   scoring.py        |  prepared stmts  |
 | JS disabled.      |           |   word_service.py   |  bound `?` params|
 +-------------------+           |       |             |                    |
                                 |       v             v                    |
-                                |  DB layer (app/db.py)                    |
+                                |  DB layer (src/app/db.py)                    |
                                 |   environ["workers.env"].DB              |
                                 +-------|----------------------------------+
                                         |  D1 protocol (prepared statements)
@@ -33,7 +33,7 @@
 ```
 
 Local development replaces the last two boxes with `run.py` (Flask dev
-server) and `instance/hangman.db` (SQLite file, same schema). The `app/db.py`
+server) and `instance/hangman.db` (SQLite file, same schema). The `src/app/db.py`
 layer dispatches automatically: if `request.environ["workers.env"]` exists it
 uses D1 via `pyodide.ffi.run_sync`, otherwise local SQLite.
 

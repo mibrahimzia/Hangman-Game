@@ -28,7 +28,7 @@ The SQLite database self-initialises on first run from `schema.sql` +
 
 ```bash
 .venv/bin/pip install pytest ruff bandit pip-audit
-SECRET_KEY=test .venv/bin/python -m pytest -v        # 74 tests
+SECRET_KEY=test .venv/bin/python -m pytest -v        # 76 tests
 .venv/bin/python -m ruff check app src scripts tests run.py
 .venv/bin/bandit -r app src
 .venv/bin/pip-audit -r docs/requirements-pinned.txt
@@ -99,6 +99,18 @@ Python Workers because dependencies must be vendored first with
 Backup demo plan (offline evaluation): run locally as in Quick start and show
 the `pytest -v` output in `docs/REPORT.md` section 7.
 
+### Local Workers emulation (optional)
+
+Runs the real `workerd` runtime with a local D1 on your machine:
+
+```bash
+python3 -m pywrangler sync          # vendors deps into ./python_modules/
+echo 'SECRET_KEY=local-dev-only-change-me' > .dev.vars   # git-ignored
+npx wrangler d1 execute hangman-db --local --file=./schema.sql
+npx wrangler d1 execute hangman-db --local --file=./db_init.sql
+npx wrangler dev --local            # serves http://127.0.0.1:8787
+```
+
 ## Docs
 
 - `docs/REPORT.md` - full project report (objectives, design, testing, results)
@@ -111,4 +123,4 @@ the `pytest -v` output in `docs/REPORT.md` section 7.
 ## License
 
 MIT (see `LICENSE`). Icons: Lucide, ISC license
-(`app/static/icons/LICENSE`).
+(`src/app/static/icons/LICENSE`).

@@ -23,7 +23,7 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.join(ROOT, "src"))
 
 from app.services.word_service import (  # noqa: E402
     MAX_WORD_LEN,
@@ -144,7 +144,7 @@ def _reserved_ui_tokens() -> set:
     name, JSON key, or button label.
     """
     reserved = set()
-    app_dir = os.path.join(ROOT, "app")
+    app_dir = os.path.join(ROOT, "src", "app")
     for dirpath, _dirnames, filenames in os.walk(app_dir):
         for filename in filenames:
             if not filename.endswith((".html", ".css", ".js", ".svg")):

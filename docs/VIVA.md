@@ -6,25 +6,25 @@ route. Each member must be able to deliver all of these from memory.
 ## From the P01 spec
 
 **Browser vs server responsibilities in this project?**
-The browser (`app/templates/game.html` + `app/static/js/game.js`) only renders
+The browser (`src/app/templates/game.html` + `src/app/static/js/game.js`) only renders
 the masked word, drawing, and score, and submits forms. The Flask server
-(`app/routes/game.py`) owns every rule: word choice, guess validation,
-win/loss detection, and scoring in `app/services/scoring.py`. The browser
+(`src/app/routes/game.py`) owns every rule: word choice, guess validation,
+win/loss detection, and scoring in `src/app/services/scoring.py`. The browser
 never sees the answer until the game ends.
 
 **How is the word requested? Where is the answer stored during play?**
 `POST /new` runs `SELECT word FROM words WHERE difficulty = ? ORDER BY
-RANDOM() LIMIT 1` (`app/models.py::random_word`), inserts a row into the
+RANDOM() LIMIT 1` (`src/app/models.py::random_word`), inserts a row into the
 `games` table, and returns an opaque session cookie. During play the answer
 exists only in that `games` row on the server.
 
 **How are guesses checked? How do scores reach the database? How is the
 leaderboard retrieved?**
 `POST /guess` loads the session and calls `HangmanGame.guess()` in
-`app/services/game_engine.py`, then persists with `UPDATE games`.
+`src/app/services/game_engine.py`, then persists with `UPDATE games`.
 `POST /submit-score` validates the name and runs `INSERT INTO scores ...
 RETURNING id`. `GET /leaderboard` runs `SELECT ... ORDER BY score DESC,
-created_at ASC LIMIT 50` in `app/models.py::top_scores`.
+created_at ASC LIMIT 50` in `src/app/models.py::top_scores`.
 
 **Why is exposing the full answer in client-side source poor design?**
 Anything sent to the browser - page source, JS variable, even a signed cookie -
@@ -48,7 +48,7 @@ the board in place.
 
 **What is the client in your system? What is the server?**
 The client is the web browser rendering Jinja templates and static assets. The
-server is the Flask application (`app/`, served by `src/worker.py` on
+server is the Flask application (`src/app/`, served by `src/worker.py` on
 Cloudflare Workers), fronting the D1 database binding `env.DB`.
 
 **What is the role of your database?**
@@ -60,7 +60,7 @@ and work across edge locations.
 **Does the project require Internet access? What breaks if disconnected?**
 Yes for the deployed version: the browser cannot reach the Worker or D1
 offline, so nothing loads. The backup demo is the local run
-(`SECRET_KEY=... python run.py`, zero network needed) plus the 74-test suite
+(`SECRET_KEY=... python run.py`, zero network needed) plus the 76-test suite
 evidence in `docs/REPORT.md`.
 
 **How do you prevent duplicate records?**
@@ -76,7 +76,7 @@ touching `remaining` - covered by unit and route tests.
 only when finished). Browser forms use the same endpoints with redirects.
 
 **How do you validate user input?**
-Allow-lists in `app/services/word_service.py`: player names (1-20 chars,
+Allow-lists in `src/app/services/word_service.py`: player names (1-20 chars,
 letters/numbers/spaces/`_.-`), usernames (3-20, no spaces), words (3-12 ASCII
 letters). Difficulty/category/select values are allow-listed in routes;
 passwords need 8+ chars; every POST carries a Flask-WTF CSRF token.
@@ -84,7 +84,7 @@ passwords need 8+ chars; every POST carries a Flask-WTF CSRF token.
 **What test case failed during development?**
 Three, all kept as regression tests: (1) scores vanished because
 `INSERT ... RETURNING` went through a no-commit read helper - fixed in
-`app/db.py`; (2) the leak test flagged "cat" because of the CSS class
+`src/app/db.py`; (2) the leak test flagged "cat" because of the CSS class
 `badge-cat` - renamed, and UI tokens excluded from the vocabulary at seed
 time; (3) "mountain" was wrongly expected to be Hard - the rule scores it
 Medium, so the test was corrected.
@@ -92,7 +92,7 @@ Medium, so the test was corrected.
 **What is an IP address or port here?**
 Locally the dev server listens on `0.0.0.0:5000` (`run.py`, `PORT` env
 overridable). In production there is no visible IP/port: the app runs on
-Cloudflare's edge behind `https://hangman.<subdomain>.workers.dev`.
+Cloudflare's edge behind `https://hangman-game.<subdomain>.workers.dev`.
 
 **What is one limitation of the project?**
 D1 is eventually consistent, so a score can take a few seconds to appear for

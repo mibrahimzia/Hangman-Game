@@ -8,9 +8,11 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_login import LoginManager
 from flask_wtf import CSRFProtect
+from jinja2 import ChoiceLoader, DictLoader
 
 from app.config import Config
 from app.db import close_local_connection, ensure_local_db, get_workers_env
+from app.templates_inline import TEMPLATES as INLINE_TEMPLATES
 
 csrf = CSRFProtect()
 login_manager = LoginManager()
@@ -57,6 +59,10 @@ def create_app(config=None):
         )
 
     app.permanent_session_lifetime = timedelta(days=7)
+
+    # Filesystem templates win locally; the embedded copy guarantees rendering
+    # on Workers even if template files are unavailable on the worker FS.
+    app.jinja_loader = ChoiceLoader([app.jinja_loader, DictLoader(INLINE_TEMPLATES)])
 
     csrf.init_app(app)
     login_manager.init_app(app)

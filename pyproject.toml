@@ -23,6 +23,19 @@ dev = [
     "wordfreq>=3.0",
 ]
 
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+# Explicit packaging so `pip install .` (run automatically by Workers Builds)
+# produces a real wheel containing the app, templates, and static files.
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["app*"]
+
+[tool.setuptools.package-data]
+app = ["templates/**/*", "static/**/*"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"

@@ -8,7 +8,7 @@ from the workers env (see app/__init__.py `_refresh_secret_from_workers_env`).
 
 import os
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 INSTANCE_DIR = os.path.join(ROOT_DIR, "instance")
 
 

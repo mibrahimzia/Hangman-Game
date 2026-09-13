@@ -16,7 +16,8 @@ from flask import current_app, g, has_request_context, request
 
 
 def _root_dir() -> str:
-    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    here = os.path.abspath(__file__)  # src/app/db.py -> repo root is 3 levels up
+    return os.path.dirname(os.path.dirname(os.path.dirname(here)))
 
 
 def _schema_path() -> str:

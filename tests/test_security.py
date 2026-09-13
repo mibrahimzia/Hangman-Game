@@ -149,7 +149,7 @@ def test_login_next_param_blocks_open_redirects(client):
 
 
 def test_models_use_bound_parameters_not_interpolation():
-    for name in ("app/models.py", "app/db.py"):
+    for name in ("src/app/models.py", "src/app/db.py"):
         with open(os.path.join(ROOT, name), encoding="utf-8") as handle:
             source = handle.read()
         assert 'f"SELECT' not in source
@@ -161,7 +161,7 @@ def test_models_use_bound_parameters_not_interpolation():
 
 
 def test_no_emoji_in_source():
-    for dirpath, _dirnames, filenames in os.walk(os.path.join(ROOT, "app")):
+    for dirpath, _dirnames, filenames in os.walk(os.path.join(ROOT, "src")):
         for filename in filenames:
             if not filename.endswith((".py", ".html", ".js", ".css")):
                 continue
