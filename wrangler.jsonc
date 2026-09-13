@@ -1,0 +1,22 @@
+{
+  "$schema": "https://developers.cloudflare.com/workers/wrangler/configuration/",
+  "name": "hangman",
+  "main": "src/worker.py",
+  "compatibility_date": "2025-06-01",
+  "compatibility_flags": ["python_workers"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "hangman-db",
+      // Set with: wrangler d1 create hangman-db  (then paste the id here)
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID"
+    }
+  ],
+  "assets": {
+    "directory": "./app/static",
+    "run_worker_first": true
+  },
+  "vars": {
+    "FLASK_ENV": "production"
+  }
+}

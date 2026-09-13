@@ -1,0 +1,151 @@
+/* EF101-P01 Hangman - mobile-first stylesheet. No frameworks. */
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --card-2: #263449;
+  --line: #334155;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #f59e0b;
+  --accent-ink: #1c1005;
+  --green: #22c55e;
+  --red: #ef4444;
+  --gold: #fbbf24;
+  --silver: #cbd5e1;
+  --bronze: #d08a4e;
+  --radius: 0.75rem;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  line-height: 1.55;
+}
+
+.container { max-width: 1080px; margin: 0 auto; padding: 0 1rem; }
+
+/* Header / nav */
+.topbar { background: #020617; border-bottom: 1px solid var(--line); }
+.nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; padding: 0.7rem 1rem; }
+.brand { display: flex; align-items: center; gap: 0.4rem; font-size: 1.35rem; font-weight: 800; color: var(--text); text-decoration: none; }
+.nav-links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.9rem; margin-left: auto; }
+.nav-links a { color: var(--text); text-decoration: none; padding: 0.25rem 0.4rem; border-radius: 0.4rem; }
+.nav-links a:hover { background: var(--card); }
+.btn-small { background: var(--accent); color: var(--accent-ink) !important; font-weight: 700; padding: 0.3rem 0.8rem !important; border-radius: 999px; }
+
+/* Icons (Lucide SVG, inline via Jinja include) */
+.icon svg { width: 1.15em; height: 1.15em; vertical-align: -0.2em; }
+.medal-gold svg { color: var(--gold); }
+.medal-silver svg { color: var(--silver); }
+.medal-bronze svg { color: var(--bronze); }
+
+/* Layout */
+main.container { padding-top: 1.25rem; padding-bottom: 2rem; }
+.game-layout { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@media (min-width: 900px) {
+  .game-layout { grid-template-columns: 1.45fr 1fr; align-items: start; }
+}
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.2rem; margin-bottom: 1rem; }
+.card h1 { margin-top: 0; }
+.narrow { max-width: 34rem; margin: 0 auto 1rem; }
+.side .card { margin-bottom: 1rem; }
+.footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 1.5rem 1rem 2rem; }
+
+/* Game board */
+.badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem; }
+.badge { background: var(--card-2); border: 1px solid var(--line); border-radius: 999px; padding: 0.15rem 0.7rem; font-size: 0.85rem; font-weight: 600; }
+.badge-category { white-space: nowrap; }
+.badge-daily { border-color: var(--accent); color: var(--gold); }
+.stage { margin: 0.5rem auto; text-align: center; }
+.stage svg { width: min(100%, 250px); height: auto; }
+.stage .gallows path { stroke: var(--muted); stroke-width: 8; }
+.stage .part { stroke: var(--accent); stroke-width: 6; stroke-linecap: round; }
+.letters { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center; margin: 1rem 0; }
+.letter {
+  width: 2.5rem; height: 3.1rem; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; font-weight: 800; text-transform: uppercase;
+  background: var(--bg); border: 1px solid var(--line); border-bottom: 3px solid var(--accent);
+  border-radius: 0.4rem;
+}
+.meta p { margin: 0.4rem 0; }
+.hearts { display: flex; flex-wrap: wrap; gap: 0.15rem; }
+.heart svg { width: 1.2em; height: 1.2em; color: var(--red); }
+.heart.lost svg { color: var(--line); }
+.chip { display: inline-block; background: var(--card-2); border: 1px solid var(--line); border-radius: 0.4rem; padding: 0 0.45rem; margin: 0.1rem 0.1rem; font-weight: 700; }
+.score-line { font-size: 1.1rem; }
+.dim { color: var(--muted); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Result panel */
+.result { border: 1px solid var(--accent); background: var(--card-2); border-radius: var(--radius); padding: 1rem; margin-top: 1rem; text-align: center; }
+.result h2 { margin: 0 0 0.4rem; }
+
+/* Forms */
+form { display: grid; gap: 0.7rem; }
+fieldset { border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.6rem 0.8rem; display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; }
+legend { padding: 0 0.4rem; color: var(--muted); font-size: 0.9rem; }
+.radio { display: flex; align-items: center; gap: 0.3rem; }
+.field { display: grid; gap: 0.3rem; }
+input, select {
+  background: var(--bg); color: var(--text); border: 1px solid var(--line);
+  border-radius: 0.5rem; padding: 0.55rem 0.7rem; font-size: 1rem; width: 100%;
+}
+#guess-form { grid-template-columns: 1fr auto; align-items: end; }
+#letter { text-align: center; font-size: 1.4rem; font-weight: 800; text-transform: uppercase; }
+button, .btn, .btn-secondary {
+  cursor: pointer; border: none; border-radius: 0.5rem; padding: 0.6rem 1.1rem;
+  font-size: 1rem; font-weight: 700; text-decoration: none; display: inline-block; text-align: center;
+}
+button, .btn { background: var(--accent); color: var(--accent-ink); }
+button:hover, .btn:hover { filter: brightness(1.08); }
+button.secondary, .btn-secondary { background: var(--card-2); color: var(--text); border: 1px solid var(--line); }
+button.linklike { background: none; color: var(--muted); text-decoration: underline; padding: 0.2rem 0; font-weight: 400; }
+button.danger-small { background: #7f1d1d; color: #fecaca; padding: 0.3rem 0.7rem; font-size: 0.85rem; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Flash messages */
+.flashes { margin-bottom: 1rem; }
+.flash { border-radius: 0.5rem; padding: 0.6rem 0.9rem; margin: 0 0 0.5rem; background: var(--card-2); border: 1px solid var(--line); }
+.flash-error, .flash-danger { border-color: var(--red); }
+.flash-success { border-color: var(--green); }
+.flash-info { border-color: var(--accent); }
+
+/* Leaderboard */
+.pills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.6rem 0 1rem; }
+.pill { border: 1px solid var(--line); border-radius: 999px; padding: 0.2rem 0.9rem; color: var(--text); text-decoration: none; }
+.pill.active { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+.table-wrap { overflow-x: auto; }
+table.board { width: 100%; border-collapse: collapse; }
+.board th, .board td { padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--line); text-align: left; }
+.board th { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.board .num { font-variant-numeric: tabular-nums; font-weight: 700; }
+.board tr.highlight td { background: rgba(245, 158, 11, 0.12); }
+/* Top 3 ranks: noticeably larger than ranks 4+. */
+.board tr.rank-top td { font-size: 1.25rem; }
+.board tr.rank-top td.name-top { font-size: 1.3rem; font-weight: 800; }
+.board tr.rank-top td.rank { white-space: nowrap; }
+
+/* Profile / admin */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 0.7rem; margin: 0.8rem 0 1.2rem; }
+.stat { background: var(--bg); border: 1px solid var(--line); border-radius: 0.6rem; padding: 0.7rem; text-align: center; display: grid; }
+.stat-num { font-size: 1.7rem; font-weight: 800; color: var(--gold); }
+.stat-label { color: var(--muted); font-size: 0.85rem; }
+.breakdown { display: grid; gap: 0.3rem; margin: 1rem 0; }
+.breakdown div { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--line); padding: 0.25rem 0; }
+.breakdown dt { color: var(--muted); }
+.breakdown dd { margin: 0; font-weight: 600; }
+.answer { font-size: 2rem; font-weight: 800; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin: 0.2rem 0; }
+.howto { padding-left: 1.2rem; }
+.howto li { margin-bottom: 0.4rem; }
+a { color: var(--gold); }
+
+/* Small phones (375px and below) */
+@media (max-width: 420px) {
+  .letter { width: 2rem; height: 2.6rem; font-size: 1.3rem; }
+  .board tr.rank-top td { font-size: 1.1rem; }
+  .nav-links { gap: 0.2rem 0.6rem; font-size: 0.95rem; }
+}

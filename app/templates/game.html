@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Play{% endblock %}
+{% block content %}
+<div class="game-layout">
+  <section class="card" aria-label="Current game">
+    {% if game %}
+      <div class="badges">
+        <span class="badge">{{ game.difficulty }}</span>
+        <span class="badge badge-category"><span class="icon" aria-hidden="true">{% include "icons/tag.svg" %}</span> {{ game.category }}</span>
+        {% if game.category == "Daily" %}
+        <span class="badge badge-daily"><span class="icon" aria-hidden="true">{% include "icons/sparkles.svg" %}</span> Daily challenge</span>
+        {% endif %}
+      </div>
+      <figure class="stage">
+        <svg id="hangman-svg" viewBox="0 0 200 220" role="img" aria-label="Hangman drawing, {{ game.wrong_count }} wrong guesses">
+          <g class="gallows" fill="none" stroke-linecap="round">
+            <path d="M20 200 H120" />
+            <path d="M60 200 V20" />
+            <path d="M60 20 H150" />
+            <path d="M150 20 V45" />
+          </g>
+          <g class="part" data-part="1" {% if parts_visible < 1 %}style="display:none"{% endif %}><circle cx="150" cy="60" r="15" fill="none" /></g>
+          <g class="part" data-part="2" {% if parts_visible < 2 %}style="display:none"{% endif %}><path d="M150 75 V130" fill="none" /></g>
+          <g class="part" data-part="3" {% if parts_visible < 3 %}style="display:none"{% endif %}><path d="M150 90 L125 115" fill="none" /></g>
+          <g class="part" data-part="4" {% if parts_visible < 4 %}style="display:none"{% endif %}><path d="M150 90 L175 115" fill="none" /></g>
+          <g class="part" data-part="5" {% if parts_visible < 5 %}style="display:none"{% endif %}><path d="M150 130 L130 168" fill="none" /></g>
+          <g class="part" data-part="6" {% if parts_visible < 6 %}style="display:none"{% endif %}><path d="M150 130 L170 168" fill="none" /></g>
+        </svg>
+      </figure>
+      <div class="letters" id="letters" aria-label="Word to guess">
+        {% for ch in game.masked_letters %}<span class="letter">{{ ch }}</span>{% endfor %}
+      </div>
+      <p class="sr-only">{{ game.masked_display }}</p>
+      <div class="meta">
+        <p id="attempts-text">{{ game.remaining }} of {{ game.max_attempts }} attempts left</p>
+        <div class="hearts" id="hearts" aria-hidden="true" data-max="{{ game.max_attempts }}">
+          {% for i in range(game.max_attempts) %}<span class="heart{% if i >= game.remaining %} lost{% endif %}">{% include "icons/heart.svg" %}</span>{% endfor %}
+        </div>
+        <p>Guessed: <span id="guessed-list">{% for letter in game.guessed|sort %}<span class="chip">{{ letter|upper }}</span>{% else %}<span class="dim">none yet</span>{% endfor %}</span></p>
+        <p class="score-line">Score: <strong id="score">{{ game.live_score() }}</strong></p>
+      </div>
+      <div id="result-panel" class="result" {% if not game.is_finished %}hidden{% endif %}>
+        <h2 id="result-title">{% if game.status == "won" %}You won!{% elif game.status == "lost" %}Game over{% endif %}</h2>
+        <p>The word was <strong id="result-answer">{{ answer or "" }}</strong></p>
+        <p>Final score: <strong id="result-score">{{ game.final_score() if game.is_finished else "" }}</strong></p>
+        <p><a class="btn" href="{{ url_for('game.submit_score_form') }}">Save your score</a></p>
+      </div>
+      <div id="game-state" data-status="{{ game.status }}" data-wrong="{{ game.wrong_count }}" data-max="{{ game.max_attempts }}" hidden></div>
+    {% else %}
+      <h1>Guess the hidden word</h1>
+      <p>Pick a difficulty and a category, then guess one letter at a time before you run out of attempts.</p>
+      <ul class="howto">
+        <li><strong>Easy</strong> gives 8 attempts, <strong>Medium</strong> 6, <strong>Hard</strong> 5.</li>
+        <li>Repeating a letter never costs an attempt.</li>
+        <li>Hints reveal a letter but cost 15 points each.</li>
+        <li>Finish the game, enter your name, and land on the leaderboard.</li>
+      </ul>
+    {% endif %}
+  </section>
+  <aside class="side">
+    {% if game and not game.is_finished %}
+    <section class="card" id="guess-card" aria-label="Make a guess">
+      <h2><span class="icon" aria-hidden="true">{% include "icons/keyboard.svg" %}</span> Your guess</h2>
+      <form id="guess-form" action="{{ url_for('game.guess') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="sr-only" for="letter">Letter</label>
+        <input id="letter" name="letter" maxlength="1" minlength="1" required pattern="[A-Za-z]" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="A" aria-label="Guess a letter">
+        <button type="submit">Guess</button>
+      </form>
+      <p id="guess-message" role="status" aria-live="polite"></p>
+    </section>
+    <section class="card" id="hint-card" aria-label="Hint and give up">
+      <h2><span class="icon" aria-hidden="true">{% include "icons/lightbulb.svg" %}</span> Stuck?</h2>
+      <form id="hint-form" action="{{ url_for('game.hint') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="secondary">Reveal a letter (-15 pts)</button>
+      </form>
+      <form id="giveup-form" action="{{ url_for('game.give_up') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="linklike">Give up and reveal the word</button>
+      </form>
+    </section>
+    {% endif %}
+    <section class="card" aria-label="New game">
+      <h2><span class="icon" aria-hidden="true">{% include "icons/play.svg" %}</span> New game</h2>
+      <form action="{{ url_for('game.new_game') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <fieldset>
+          <legend>Difficulty</legend>
+          {% for level in difficulties %}
+          <label class="radio"><input type="radio" name="difficulty" value="{{ level }}" {% if level == "Medium" %}checked{% endif %}> {{ level }}</label>
+          {% endfor %}
+        </fieldset>
+        <label class="field">Category
+          <select name="category">
+            {% for cat in categories %}<option value="{{ cat }}">{{ cat }}</option>{% endfor %}
+          </select>
+        </label>
+        <button type="submit">{% if game and game.is_finished %}Play again{% else %}Start game{% endif %}</button>
+      </form>
+      <p><a class="btn-secondary" href="{{ url_for('game.daily') }}">Play the daily challenge</a></p>
+    </section>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+<section class="card">
+  <h1><span class="icon" aria-hidden="true">{% include "icons/shield-check.svg" %}</span> Admin dashboard</h1>
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-num">{{ overview.words }}</span><span class="stat-label">Words</span></div>
+    <div class="stat"><span class="stat-num">{{ overview.scores }}</span><span class="stat-label">Scores</span></div>
+    <div class="stat"><span class="stat-num">{{ overview.users }}</span><span class="stat-label">Users</span></div>
+    <div class="stat"><span class="stat-num">{{ overview.games_in_progress }}</span><span class="stat-label">Games in progress</span></div>
+  </div>
+</section>
+<div class="game-layout">
+  <section class="card">
+    <h2>Add a word</h2>
+    <p class="dim">Difficulty is assigned automatically by the documented rule.</p>
+    <form action="{{ url_for('admin.add_word_route') }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="field">Word (3-12 English letters)
+        <input name="word" required minlength="3" maxlength="12" pattern="[A-Za-z]+" autocomplete="off">
+      </label>
+      <label class="field">Category
+        <select name="category">
+          {% for cat in categories %}<option value="{{ cat }}">{{ cat }}</option>{% endfor %}
+        </select>
+      </label>
+      <button type="submit">Add word</button>
+    </form>
+    <h2>Users</h2>
+    <div class="table-wrap">
+      <table class="board">
+        <thead><tr><th scope="col">Username</th><th scope="col">Admin</th><th scope="col">Since</th></tr></thead>
+        <tbody>
+          {% for user in users %}
+          <tr><td>{{ user.username }}</td><td>{% if user.is_admin %}Yes{% else %}No{% endif %}</td><td class="dim">{{ user.created_at[:10] }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Recent scores</h2>
+    <div class="table-wrap">
+      <table class="board">
+        <thead><tr><th scope="col">Player</th><th scope="col">Score</th><th scope="col">Action</th></tr></thead>
+        <tbody>
+          {% for row in recent %}
+          <tr>
+            <td>{{ row.player_name }}</td>
+            <td class="num">{{ row.score }}</td>
+            <td>
+              <form action="{{ url_for('admin.delete_score_route', score_id=row.id) }}" method="post" data-confirm="Delete this score?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="danger-small">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" class="dim">No scores yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}
