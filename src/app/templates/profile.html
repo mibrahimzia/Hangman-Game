@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<section class="card">
+  <h1><span class="icon" aria-hidden="true">{% include "icons/user.svg" %}</span> {{ current_user.username }}</h1>
+  <div class="stat-grid">
+    <div class="stat"><span class="stat-num">{{ stats.games_played }}</span><span class="stat-label">Games played</span></div>
+    <div class="stat"><span class="stat-num">{{ stats.best_score }}</span><span class="stat-label">Best score</span></div>
+  </div>
+  <h2>Recent games</h2>
+  {% if recent %}
+  <div class="table-wrap">
+    <table class="board">
+      <thead><tr><th scope="col">Score</th><th scope="col">Difficulty</th><th scope="col">Result</th><th scope="col">Date</th></tr></thead>
+      <tbody>
+        {% for row in recent %}
+        <tr><td class="num">{{ row.score }}</td><td>{{ row.difficulty }}</td><td>{{ row.result|capitalize }}</td><td class="dim">{{ row.created_at[:10] }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="dim">No games yet. <a href="{{ url_for('game.index') }}">Play now.</a></p>
+  {% endif %}
+</section>
+{% endblock %}

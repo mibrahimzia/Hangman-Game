@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="description" content="EF101-P01 Hangman: guess the hidden word, save your score, climb the leaderboard.">
+  <title>{% block title %}Play{% endblock %} - Hangman EF101-P01</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f59e0b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 20V4'/%3E%3Cpath d='M6 4h11'/%3E%3Cpath d='M17 4v3'/%3E%3Ccircle cx='17' cy='9' r='2'/%3E%3Cpath d='M17 11v5'/%3E%3Cpath d='M3 20h9'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav container" aria-label="Main">
+      <a class="brand" href="{{ url_for('game.index') }}">
+        <span class="icon" aria-hidden="true">{% include "icons/gamepad-2.svg" %}</span>
+        <span>Hangman</span>
+      </a>
+      <div class="nav-links">
+        <a href="{{ url_for('game.index') }}"><span class="icon" aria-hidden="true">{% include "icons/house.svg" %}</span> Play</a>
+        <a href="{{ url_for('leaderboard.index') }}"><span class="icon" aria-hidden="true">{% include "icons/trophy.svg" %}</span> Leaderboard</a>
+        <a href="{{ url_for('game.daily') }}"><span class="icon" aria-hidden="true">{% include "icons/calendar-days.svg" %}</span> Daily</a>
+        {% if current_user.is_authenticated %}
+          {% if current_user.is_admin %}
+          <a href="{{ url_for('admin.dashboard') }}"><span class="icon" aria-hidden="true">{% include "icons/shield-check.svg" %}</span> Admin</a>
+          {% endif %}
+          <a href="{{ url_for('auth.profile') }}"><span class="icon" aria-hidden="true">{% include "icons/user.svg" %}</span> {{ current_user.username }}</a>
+          <a href="{{ url_for('auth.logout') }}"><span class="icon" aria-hidden="true">{% include "icons/log-out.svg" %}</span> Logout</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}"><span class="icon" aria-hidden="true">{% include "icons/log-in.svg" %}</span> Login</a>
+          <a class="btn-small" href="{{ url_for('auth.register') }}">Register</a>
+        {% endif %}
+      </div>
+    </nav>
+  </header>
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flashes" role="alert">
+          {% for category, message in messages %}
+            <p class="flash flash-{{ category }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer">
+    <p>EF101-P01 Web-Based Hangman - Python + Flask + Cloudflare D1 - Icons: Lucide (ISC License)</p>
+  </footer>
+  <script src="{{ url_for('static', filename='js/game.js') }}" defer></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://developers.cloudflare.com/workers/wrangler/configuration/",
+  "name": "hangman-game",
+  "main": "src/worker.py",
+  "compatibility_date": "2025-06-01",
+  "compatibility_flags": ["python_workers"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "hangman-db",
+      "database_id": "130f2c0f-a9b1-46b0-8a0e-922a93e91910"
+    }
+  ],
+  // Static files are served directly by the edge; all other routes fall
+  // through to the Python worker. (run_worker_first must stay false so that
+  // /static/* never depends on the worker's filesystem.)
+  "assets": {
+    "directory": "./src/app/static",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "FLASK_ENV": "production"
+  }
+}

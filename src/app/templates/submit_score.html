@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Save score{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>{% if game.status == "won" %}You won!{% else %}Game over{% endif %}</h1>
+  <p>The word was</p>
+  <p class="answer">{{ answer }}</p>
+  <dl class="breakdown">
+    <div><dt>Difficulty</dt><dd>{{ game.difficulty }}</dd></div>
+    <div><dt>Word length</dt><dd>{{ game.word|length }} letters</dd></div>
+    <div><dt>Attempts left</dt><dd>{{ game.remaining }}</dd></div>
+    <div><dt>Hints used</dt><dd>{{ game.hints_used }}</dd></div>
+    <div><dt>Final score</dt><dd><strong>{{ final_score }}</strong></dd></div>
+  </dl>
+  <form action="{{ url_for('game.submit_score') }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="field">Your name
+      <input name="player_name" value="{{ suggested }}" maxlength="20" required autocomplete="nickname" placeholder="e.g. Ayesha">
+    </label>
+    <button type="submit">Save score</button>
+  </form>
+  <p><a href="{{ url_for('game.index') }}">Back to the game</a></p>
+</section>
+{% endblock %}

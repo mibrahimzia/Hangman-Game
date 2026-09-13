@@ -1,0 +1,55 @@
+[project]
+name = "hangman"
+version = "1.0.0"
+description = "EF101-P01 Web-Based Hangman Game with persistent leaderboard (Python + Flask + Cloudflare D1)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "Flask==3.1.3",
+    "Flask-Login==0.6.3",
+    "Flask-WTF==1.3.0",
+    "Flask-Limiter==4.1.1",
+    # Workers Python adapter: provides the `workers` module (incl. `workers.wsgi`)
+    # used by src/worker.py. The base runtime image ships an older `workers`
+    # package without `wsgi`, so this MUST stay a runtime dependency (bundled
+    # into the worker by pywrangler). Mirrors the official flask-todo example.
+    "workers-runtime-sdk==1.8.4",
+]
+
+[project.optional-dependencies]
+# Build-time / dev-only tools. These are NEVER deployed to Workers and are NOT
+# runtime dependencies. wordfreq is used once to generate db_init.sql.
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.8.0",
+    "bandit>=1.7.0",
+    "pip-audit>=2.7.0",
+    "wordfreq>=3.0",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+# Explicit packaging so `pip install .` (run automatically by Workers Builds)
+# produces a real wheel containing the app, templates, and static files.
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["app*"]
+
+[tool.setuptools.package-data]
+app = ["templates/**/*", "static/**/*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+# Vendored third-party code is byte-identical to the pinned PyPI releases
+# (see scripts/vendor_python_modules.py); never lint or reformat it.
+exclude = ["src/python_modules"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

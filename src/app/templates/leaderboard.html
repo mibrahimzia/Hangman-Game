@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard{% endblock %}
+{% block content %}
+<section class="card">
+  <h1><span class="icon" aria-hidden="true">{% include "icons/trophy.svg" %}</span> Leaderboard</h1>
+  <p class="dim">Top 50 scores. Ties are ordered by earliest submission.</p>
+  <nav class="pills" aria-label="Difficulty filter">
+    {% for level in difficulties %}
+      <a class="pill{% if level == difficulty %} active{% endif %}" href="{{ url_for('leaderboard.index', difficulty=level) }}">{{ level }}</a>
+    {% endfor %}
+  </nav>
+  {% if rows %}
+  <div class="table-wrap">
+    <table class="board">
+      <thead>
+        <tr><th scope="col">Rank</th><th scope="col">Player</th><th scope="col">Score</th><th scope="col">Difficulty</th><th scope="col">Result</th><th scope="col">Date</th></tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        {% set rank = loop.index %}
+        <tr class="{% if rank <= 3 %}rank-top {% endif %}{% if highlight == row.id %}highlight{% endif %}">
+          <td class="rank">
+            {% if rank == 1 %}<span class="icon medal-gold" aria-hidden="true">{% include "icons/trophy.svg" %}</span> 1
+            {% elif rank == 2 %}<span class="icon medal-silver" aria-hidden="true">{% include "icons/medal.svg" %}</span> 2
+            {% elif rank == 3 %}<span class="icon medal-bronze" aria-hidden="true">{% include "icons/award.svg" %}</span> 3
+            {% else %}{{ rank }}{% endif %}
+          </td>
+          <td class="{% if rank <= 3 %}name-top{% endif %}">{{ row.player_name }}</td>
+          <td class="num">{{ row.score }}</td>
+          <td>{{ row.difficulty }}</td>
+          <td>{{ row.result|capitalize }}</td>
+          <td class="dim">{{ row.created_at[:10] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p>No scores yet. <a href="{{ url_for('game.index') }}">Be the first to play.</a></p>
+  {% endif %}
+</section>
+{% endblock %}
